@@ -4,6 +4,8 @@ const controller = require("../../controllers/user/auth.controller");
 const checkToken = require("../../middlewares/checkToken");
 
 router.post("/register", controller.signup);
+router.post("/otp", controller.verificationOTP);
+router.post("/renew-otp", controller.renewOTP);
 router.get("/verification-email/:key", controller.verificationEmail);
 router.post("/login", controller.login);
 router.post("/reset-password", controller.resetPassword);

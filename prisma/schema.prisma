@@ -42,20 +42,21 @@ model CourseLevel {
 }
 
 model Admin {
-  id            Int      @id @default(autoincrement())
-  fullName      String   @map("full_name")
-  email         String   @unique
+  id            Int       @id @default(autoincrement())
+  fullName      String    @map("full_name")
+  email         String    @unique
   password      String
-  imageUrl      String?  @map("image_url")
-  phoneNumber   String?  @map("phone_number")
+  imageUrl      String?   @map("image_url")
+  phoneNumber   String?   @map("phone_number")
   city          String?
   country       String?
-  emailToken    String?  @map("email_token")
-  passwordToken String?  @map("password_token")
-  otpCode       String?  @map("otp_code")
+  emailToken    String?   @map("email_token")
+  passwordToken String?   @map("password_token")
+  otpCode       String?   @map("otp_code")
+  otpExpiration DateTime? @map("otp_expiration")
   status        String?
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
   course        Course[]
 
   @@map("admin")
@@ -146,16 +147,16 @@ model CourseReview {
 }
 
 model CourseCoupon {
-  id              Int      @id @default(autoincrement())
-  couponName      String?  @map("coupon_name")
-  couponCode      String?  @map("coupon_code")
-  discountPercent String?  @map("discount_percent")
-  validUntil      String?  @map("valid_until")
+  id              Int       @id @default(autoincrement())
+  couponName      String?   @map("coupon_name")
+  couponCode      String?   @map("coupon_code")
+  discountPercent String?   @map("discount_percent")
+  validUntil      DateTime? @map("valid_until")
   status          String?
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  Course          Course?  @relation(fields: [courseId], references: [id])
-  courseId        Int?     @map("course_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  Course          Course?   @relation(fields: [courseId], references: [id])
+  courseId        Int?      @map("course_id")
   order           Order[]
 
   @@map("coursecoupon")
@@ -178,7 +179,6 @@ model User {
   createdAt         DateTime            @default(now()) @map("created_at")
   updatedAt         DateTime            @updatedAt @map("updated_at")
   courseReview      CourseReview[]
-  userCourse        UserCourse[]
   userCourseContent UserCourseContent[]
   order             Order[]
 
@@ -187,7 +187,8 @@ model User {
 
 model Order {
   id             Int           @id @default(autoincrement())
-  totalPrice     Int           @map("total_price")
+  orderTrx       String?       @unique @map("order_trx")
+  totalPrice     BigInt        @map("total_price")
   orderDate      DateTime?     @map("order_date")
   status         String?
   accountNumber  String?       @map("account_number")
@@ -203,29 +204,16 @@ model Order {
   @@map("order")
 }
 
-model UserCourse {
-  id                Int                 @id @default(autoincrement())
-  courseCount       Int?                @map("course_count")
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  User              User?               @relation(fields: [userId], references: [id])
-  userId            Int?                @map("user_id")
-  userCourseContent UserCourseContent[]
-
-  @@map("usercourse")
-}
-
 model UserCourseContent {
-  id           Int         @id @default(autoincrement())
-  courseName   String?     @map("course_name")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-  Course       Course?     @relation(fields: [courseId], references: [id])
-  courseId     Int?        @map("course_id")
-  User         User?       @relation(fields: [userId], references: [id])
-  userId       Int?        @map("user_id")
-  UserCourse   UserCourse? @relation(fields: [userCourseId], references: [id])
-  userCourseId Int?        @map("user_course_id")
+  id          Int      @id @default(autoincrement())
+  courseName  String?  @map("course_name")
+  courseCount Int      @map("course_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  Course      Course?  @relation(fields: [courseId], references: [id])
+  courseId    Int?     @map("course_id")
+  User        User?    @relation(fields: [userId], references: [id])
+  userId      Int?     @map("user_id")
 
   @@map("usercoursecontent")
 }

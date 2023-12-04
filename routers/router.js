@@ -3,8 +3,11 @@ const router = express.Router();
 const authAdminRouter = require("./admin/auth.route");
 const profileAdminRouter = require("./admin/profile.route");
 const courseAdminRouter = require("./admin/course.route");
+const couponAdminRouter = require("./admin/coupon.route");
 const authUserRouter = require("./user/auth.route");
 const profileUserRouter = require("./user/profile.route");
+const userOrderCourseRouter = require("./user/order.route");
+const userDashboardRouter = require("./user/dashboard.route");
 const categoryRouter = require("./course/category.route");
 const levelRouter = require("./course/level.route");
 const typeRouter = require("./course/type.route");
@@ -24,10 +27,14 @@ router.get("/", (req, res) => {
 router.use("/auth/admin", authAdminRouter);
 router.use("/admin/profile", profileAdminRouter);
 router.use("/admin", courseAdminRouter);
+router.use("/admin/coupon/", couponAdminRouter);
 
 // User
 router.use("/auth/user", authUserRouter);
 router.use("/user/profile", profileUserRouter);
+router.use("/user/order", userOrderCourseRouter);
+router.use("/user/dashboard", userDashboardRouter);
+router.use("/check/coupon", userOrderCourseRouter);
 
 // Course
 router.use("/category", categoryRouter);

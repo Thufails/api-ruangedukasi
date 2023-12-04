@@ -13,7 +13,6 @@ module.exports = {
   courseCoupon: prisma.courseCoupon,
   admin: prisma.admin,
   user: prisma.user,
-  userCourse: prisma.userCourse,
   userCourseContent: prisma.userCourseContent,
   order: prisma.order,
 };

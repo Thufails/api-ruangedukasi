@@ -25,12 +25,16 @@ module.exports = {
       }
 
       const encryptEmail = await utils.encryptEmail(email);
+      const randomOTP = Math.floor(100000 + Math.random() * 900000);
+
       const data = await user.create({
         data: {
           fullName: full_name,
           email: email,
           phoneNumber: phone_number,
           password: await utils.encryptPassword(password),
+          otpCode: randomOTP.toString(),
+          otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
           emailToken: encryptEmail,
           status: "inActive",
         },
@@ -49,11 +53,11 @@ module.exports = {
       let mailOptions = {
         from: "Ruang Edukasi <system@gmail.com>",
         to: email,
-        subject: "Ruang Edukasi - Verification Email",
+        subject: "Ruang Edukasi - OTP Verification",
         html: `<p>
-        To complete registration at <strong>Ruang Edukasi</strong> <br/><br/>
-        <a href="${process.env.HOST}/api/v1/auth/user/verification-email/${encryptEmail}"
-        style="background-color: #4CAF50; color: white; padding: 10px; text-decoration:none; text-align: center;">Verification email</a>
+        To complete registration at <strong>Ruang Edukasi</strong> please input this code <br/><br/>
+        <span style="background-color: #3393FF; color: white; padding: 10px; text-decoration:none; text-align: center;">${randomOTP}</span><br/><br/>
+        <span>OTP valid for <strong>5</strong> minutes only</span>
         </p>`,
       };
 
@@ -66,11 +70,12 @@ module.exports = {
           });
         }
 
-        delete data["password"]; // hide password field in response
         return res.status(201).json({
           error: false,
-          message:
-            "Registration successful.\nCheck your inbox or spam folder to verification your email.",
+          message: "Registration successful. Please check your email",
+          response: {
+            verifId: data.emailToken,
+          },
         });
       });
     } catch (error) {
@@ -118,6 +123,127 @@ module.exports = {
     }
   },
 
+  verificationOTP: async (req, res) => {
+    try {
+      const { otp } = req.body;
+      const findData = await user.findFirst({
+        where: {
+          emailToken: req.query.verification,
+        },
+      });
+
+      if (!findData) {
+        return res.status(500).json({
+          error: true,
+          message: "Verification parameter not valid",
+        });
+      }
+
+      // Check OTP
+      if (
+        findData.otpCode === otp &&
+        new Date() < new Date(findData.otpExpiration)
+      ) {
+        await user.update({
+          data: {
+            emailToken: null,
+            otpCode: null,
+            otpExpiration: null,
+            status: "Active",
+          },
+          where: {
+            id: findData.id,
+          },
+        });
+
+        return res.status(200).json({
+          error: false,
+          message: "OTP verification successful",
+        });
+      }
+
+      return res.status(401).json({
+        error: true,
+        message: "Invalid or expired OTP",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        error: true,
+        message: error,
+      });
+    }
+  },
+
+  renewOTP: async (req, res) => {
+    try {
+      const findData = await user.findFirst({
+        where: {
+          emailToken: req.query.verification,
+        },
+      });
+
+      if (!findData) {
+        return res.status(500).json({
+          error: true,
+          message: "Verification parameter not valid",
+        });
+      }
+
+      const randomOTP = Math.floor(100000 + Math.random() * 900000);
+      const data = await user.update({
+        data: {
+          otpCode: randomOTP.toString(),
+          otpExpiration: new Date(Date.now() + 5 * 60 * 1000), // OTP valid 5 Minutes
+        },
+        where: {
+          id: findData.id,
+        },
+      });
+
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      let mailOptions = {
+        from: "Ruang Edukasi <system@gmail.com>",
+        to: data.email,
+        subject: "Ruang Edukasi - OTP Verification",
+        html: `<p>
+        To complete registration at <strong>Ruang Edukasi</strong> please input this code <br/><br/>
+        <span style="background-color: #3393FF; color: white; padding: 10px; text-decoration:none; text-align: center;">${randomOTP}</span><br/><br/>
+        <span>OTP valid for <strong>5</strong> minutes only</span>
+        </p>`,
+      };
+
+      transporter.sendMail(mailOptions, (err) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            error: true,
+            message: err,
+          });
+        }
+
+        return res.status(200).json({
+          error: false,
+          message: "Successfully send OTP",
+        });
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error: true,
+        message: error,
+      });
+    }
+  },
+
   login: async (req, res) => {
     // Endpoint Login (LogIn)
     try {
@@ -129,10 +255,11 @@ module.exports = {
         },
       });
 
-      if (!userCheck || !(await bcrypt.compare(password, userCheck.password))) {
-        return res.status(401).json({
+      // User not exists
+      if (!userCheck) {
+        return res.status(404).json({
           error: true,
-          message: "Invalid credentials",
+          message: "Email is not registered in our system",
         });
       }
 
@@ -150,15 +277,23 @@ module.exports = {
         });
       }
 
+      // Check password
+      if (!(await bcrypt.compare(password, userCheck.password))) {
+        return res.status(401).json({
+          error: true,
+          message: "Wrong password",
+        });
+      }
+
       const token = jwt.sign(
         { id: userCheck.id, email: userCheck.email },
         secretKey,
         {
-          expiresIn: "1h",
+          expiresIn: "6h",
         }
       ); // Generate JWT token
 
-      res.json({
+      return res.status(200).json({
         error: false,
         message: "Login successful",
         response: {
