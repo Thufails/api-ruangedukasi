@@ -1,5 +1,4 @@
 const {
-<<<<<<< HEAD
     course,
     courseType,
     courseCategory,
@@ -8,17 +7,10 @@ const {
     courseContent,
     courseSkill,
     courseTarget,
-=======
-  course,
-  courseType,
-  courseCategory,
-  courseLevel,
-  admin,
-  courseContent,
-  courseSkill,
-  courseTarget,
-  courseCoupon,
->>>>>>> 68d9ebed9be340e7d081e8b0a647fe597b555f38
+    courseCoupon,
+    >>>
+    >>>
+    > 68 d9ebed9be340e7d081e8b0a647fe597b555f38
 } = require("../../models");
 const { imageKit } = require("../../utils");
 
@@ -246,7 +238,10 @@ module.exports = {
                 where: { id: jwtAdminId },
             });
 
-<<<<<<< HEAD
+            <<
+            <<
+            <<
+            < HEAD
             if (!checkAdminExist) {
                 return res
                     .status(404)
@@ -273,60 +268,64 @@ module.exports = {
             });
         }
     },
-};
-=======
-      return res.status(201).json({
-        error: false,
-        message: "Course target successfuly created",
-        response: addCourseTarget,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
+}; ===
+===
+=
+return res.status(201).json({
+    error: false,
+    message: "Course target successfuly created",
+    response: addCourseTarget,
+});
+}
+catch (error) {
+    console.log(error);
+    return res.status(500).json({
         error: true,
         message: error,
-      });
-    }
-  },
+    });
+}
+},
 
-  addCourseCoupon: async (req, res) => {
+addCourseCoupon: async(req, res) => {
     try {
-      const courseId = req.params.courseId; // courseId params from admin course.route
-      const jwtAdminId = res.sessionLogin.id; // From checktoken middlewares
-      const { coupon_name, coupon_code, discount_percent } = req.body;
-      const checkAdminExist = await admin.findUniqueOrThrow({
-        where: { id: jwtAdminId },
-      });
+        const courseId = req.params.courseId; // courseId params from admin course.route
+        const jwtAdminId = res.sessionLogin.id; // From checktoken middlewares
+        const { coupon_name, coupon_code, discount_percent } = req.body;
+        const checkAdminExist = await admin.findUniqueOrThrow({
+            where: { id: jwtAdminId },
+        });
 
-      if (!checkAdminExist) {
-        return res
-          .status(404)
-          .json({ error: true, message: "Admin not found" });
-      }
+        if (!checkAdminExist) {
+            return res
+                .status(404)
+                .json({ error: true, message: "Admin not found" });
+        }
 
-      const addCourseCoupon = await courseCoupon.create({
-        data: {
-          courseId: parseInt(courseId),
-          couponName: coupon_name,
-          couponCode: coupon_code,
-          discountPercent: discount_percent,
-          validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-          status: "Active",
-        },
-      });
+        const addCourseCoupon = await courseCoupon.create({
+            data: {
+                courseId: parseInt(courseId),
+                couponName: coupon_name,
+                couponCode: coupon_code,
+                discountPercent: discount_percent,
+                validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+                status: "Active",
+            },
+        });
 
-      return res.status(201).json({
-        error: false,
-        message: "Course coupon successfuly created",
-        response: addCourseCoupon,
-      });
+        return res.status(201).json({
+            error: false,
+            message: "Course coupon successfuly created",
+            response: addCourseCoupon,
+        });
     } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        error: true,
-        message: error,
-      });
+        console.log(error);
+        return res.status(500).json({
+            error: true,
+            message: error,
+        });
     }
-  },
-};
->>>>>>> 68d9ebed9be340e7d081e8b0a647fe597b555f38
+},
+}; >>>
+>>>
+>
+68 d9ebed9be340e7d081e8b0a647fe597b555f38

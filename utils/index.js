@@ -44,6 +44,24 @@ const dummyAccountNumber = async () => {
   return generate.toString();
 };
 
+const encryptOrder = async () => {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let orderTrx = "";
+
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    orderTrx += characters.charAt(randomIndex);
+  }
+
+  return orderTrx;
+};
+
+const dummyAccountNumber = async () => {
+  const generate = Math.floor(100000000000 + Math.random() * 900000000000);
+
+  return generate.toString();
+};
+
 module.exports = {
 <<<<<<< HEAD
     encryptPassword,
