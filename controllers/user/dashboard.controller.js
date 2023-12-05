@@ -1,4 +1,4 @@
-const { user, userCourseContent } = require("../../models");
+const { user } = require("../../models");
 
 const profileDashboard = async (req, res) => {
   try {
@@ -29,10 +29,14 @@ const profileDashboard = async (req, res) => {
             orderDate: true,
           },
         },
+        userCourseContent: {
+          select: {
+            courseId: true,
+            courseName: true,
+          },
+        },
       },
     });
-
-    delete data["password"]; // hide password field in response
 
     if (data.order) {
       data.order.forEach((order) => {
@@ -44,7 +48,12 @@ const profileDashboard = async (req, res) => {
 
     const responseData = {
       ...data,
+      riwayatOrder: data.order,
+      myCourse: data.userCourseContent,
     };
+
+    delete responseData["order"];
+    delete responseData["userCourseContent"];
 
     return res.status(200).json({
       error: false,

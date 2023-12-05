@@ -4,6 +4,7 @@ const authAdminRouter = require("./admin/auth.route");
 const profileAdminRouter = require("./admin/profile.route");
 const courseAdminRouter = require("./admin/course.route");
 const couponAdminRouter = require("./admin/coupon.route");
+const adminOrderCourseRouter = require("./admin/order.route");
 const authUserRouter = require("./user/auth.route");
 const profileUserRouter = require("./user/profile.route");
 const userOrderCourseRouter = require("./user/order.route");
@@ -28,7 +29,8 @@ router.get("/", (req, res) => {
 router.use("/auth/admin", authAdminRouter);
 router.use("/admin/profile", profileAdminRouter);
 router.use("/admin", courseAdminRouter);
-router.use("/admin/coupon/", couponAdminRouter);
+router.use("/admin/coupon", couponAdminRouter);
+router.use("/admin/order", adminOrderCourseRouter);
 
 // User
 router.use("/auth/user", authUserRouter);

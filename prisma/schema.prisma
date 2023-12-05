@@ -207,7 +207,7 @@ model Order {
 model UserCourseContent {
   id          Int      @id @default(autoincrement())
   courseName  String?  @map("course_name")
-  courseCount Int      @map("course_count")
+  courseCount Int?     @map("course_count")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   Course      Course?  @relation(fields: [courseId], references: [id])
