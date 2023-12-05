@@ -156,9 +156,20 @@ module.exports = {
           },
         });
 
+        const token = jwt.sign(
+          { id: findData.id, email: findData.email },
+          secretKey,
+          {
+            expiresIn: "6h",
+          }
+        );
+
         return res.status(200).json({
           error: false,
           message: "OTP verification successful",
+          response: {
+            token,
+          },
         });
       }
 

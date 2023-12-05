@@ -71,7 +71,7 @@ const register = async (req, res) => {
 
       return res.status(201).json({
         error: false,
-        message: "Registration successful. Please check your email yaa",
+        message: "Registration successful. Please check your email",
         response: {
           verifId: data.emailToken,
         },
@@ -119,9 +119,20 @@ const verificationOTP = async (req, res) => {
         },
       });
 
+      const token = jwt.sign(
+        { id: findData.id, email: findData.email },
+        secretKey,
+        {
+          expiresIn: "6h",
+        }
+      );
+
       return res.status(200).json({
         error: false,
         message: "OTP verification successful",
+        response: {
+          token,
+        },
       });
     }
 
