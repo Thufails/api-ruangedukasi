@@ -364,7 +364,7 @@ const resetPassword = async (req, res) => {
       subject: "Ruang Edukasi - Reset Password",
       html: `<p>
         To reset your password, please click the button below <br/><br/>
-        <a href="${process.env.HOST}/api/v1/auth/admin/set-password/${encryptPassword}"
+        <a href="${process.env.HOST}/admin/reset/${encryptPassword}"
         style="background-color: #4CAF50; color: white; padding: 10px; text-decoration:none; text-align: center;">Reset password</a>
         </p>`,
     };
