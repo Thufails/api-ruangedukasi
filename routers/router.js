@@ -7,6 +7,7 @@ const couponAdminRouter = require("./admin/coupon.route");
 const authUserRouter = require("./user/auth.route");
 const profileUserRouter = require("./user/profile.route");
 const userOrderCourseRouter = require("./user/order.route");
+const userCouponCourseRouter = require("./user/coupon.route");
 const userDashboardRouter = require("./user/dashboard.route");
 const categoryRouter = require("./course/category.route");
 const levelRouter = require("./course/level.route");
@@ -34,7 +35,7 @@ router.use("/auth/user", authUserRouter);
 router.use("/user/profile", profileUserRouter);
 router.use("/user/order", userOrderCourseRouter);
 router.use("/user/dashboard", userDashboardRouter);
-router.use("/check/coupon", userOrderCourseRouter);
+router.use("/check/coupon", userCouponCourseRouter);
 
 // Course
 router.use("/category", categoryRouter);

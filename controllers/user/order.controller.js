@@ -8,10 +8,10 @@ const {
 const utils = require("../../utils");
 
 let discPercent = 0;
+let courseCouponId = null;
 
 const orderCourse = async (req, res) => {
   try {
-    const { coupon_code } = req.body;
     const jwtUserId = res.sessionLogin.id; // From checktoken middlewares
     const courseId = req.params.courseId; // params courseId from course.route
 
@@ -24,6 +24,7 @@ const orderCourse = async (req, res) => {
         courseName: true,
         courseCoupon: {
           select: {
+            id: true,
             couponCode: true,
             discountPercent: true,
             validUntil: true,
@@ -38,33 +39,7 @@ const orderCourse = async (req, res) => {
 
     const courseName = checkCourse.courseName;
 
-    // Order with coupon
-    if (coupon_code != null) {
-      const checkCoupon = await courseCoupon.findFirst({
-        where: {
-          couponCode: coupon_code,
-          courseId: parseInt(courseId),
-        },
-      });
-
-      const dateNow = new Date(); // Date time server now
-      if (
-        checkCoupon &&
-        dateNow < checkCoupon.validUntil &&
-        checkCoupon.status == "Active"
-      ) {
-        // Use discount percent
-        discPercent = checkCoupon.discountPercent;
-      } else {
-        return res.status(203).json({
-          error: true,
-          message: "Coupon Code Not Valid",
-        });
-      }
-
-      console.log(`Discount percent is ${discPercent}`);
-    }
-
+    const priceInitial = parseFloat(checkCourse.price);
     const priceDiscount = parseFloat(checkCourse.price) * (discPercent / 100);
     const priceAfter = parseFloat(checkCourse.price) - priceDiscount;
     const data = await order.create({
@@ -72,6 +47,7 @@ const orderCourse = async (req, res) => {
         userId: parseInt(jwtUserId),
         orderTrx: `RE-${encryptOrderTrx}-${randomNumber}`,
         courseId: parseInt(courseId),
+        courseCouponId: parseInt(courseCouponId),
         totalPrice: parseFloat(priceAfter),
         orderDate: new Date(),
         status: "Waiting payment",
@@ -83,11 +59,17 @@ const orderCourse = async (req, res) => {
       id: data.id,
       orderTrx: data.orderTrx,
       courseName: courseName,
+      initialPrice: priceInitial ? parseFloat(priceInitial) : null,
+      discountPercent: discPercent ? parseFloat(discPercent) : 0,
+      discountPrice: priceDiscount ? parseFloat(priceDiscount) : 0,
       totalPrice: data.totalPrice ? parseFloat(data.totalPrice) : null,
-      orderDate: data.orderDate,
       accountNumber: data.accountNumber,
       status: data.status,
+      orderDate: data.orderDate,
     };
+
+    discPercent = 0;
+    courseCouponId = null;
 
     return res.status(201).json({
       error: false,
@@ -125,22 +107,25 @@ const checkCoupon = async (req, res) => {
       ) {
         // Use discount percent
         discPercent = checkCoupon.discountPercent;
+        courseCouponId = checkCoupon.id;
         return res.status(200).json({
           error: false,
           message: "Successfully use coupon",
+          dicount: discPercent,
         });
       } else {
         return res.status(200).json({
           error: true,
           message: "Coupon code not valid",
+          dicount: discPercent,
         });
       }
     }
 
-    console.log(`Discount percent is ${discPercent}`);
     return res.status(200).json({
       error: true,
       message: "Please input a valid coupon code",
+      dicount: discPercent,
     });
   } catch (error) {
     console.log(error);
