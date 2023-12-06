@@ -53,11 +53,152 @@ const register = async (req, res) => {
       from: "Ruang Edukasi <system@gmail.com>",
       to: email,
       subject: "Ruang Edukasi - OTP Verification",
-      html: `<p>
-        To complete registration at <strong>Ruang Edukasi</strong> please input this code <br/><br/>
-        <span style="background-color: #3393FF; color: white; padding: 10px; text-decoration:none; text-align: center;">${randomOTP}</span><br/><br/>
-        <span>OTP valid for <strong>5</strong> minutes only</span>
-        </p>`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <link rel="preconnect" href="https://fonts.gstatic.com">
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="=stylesheet">
+          <style>
+              body {
+                margin: 0;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 24px;
+                font-family: Inter, system-ui, Helvetica, Arial, sans-serif
+              }
+
+              strong {
+                font-weight: 600
+              }
+
+              .container {
+                width: 600px;
+                padding: 60px 60px 32px;
+                margin: 24px auto;
+                box-sizing: border-box;
+                border: 1px solid #ededed
+              }
+
+              .learning-center {
+                color: #212121;
+                text-decoration: underline
+              }
+
+              a:hover {
+                text-decoration: underline
+              }
+
+              a.btn {
+                font-size: 12px;
+                padding: 8px 12px;
+                text-decoration: none;
+                background-color: #ff6c37;
+                border-radius: 4px;
+                color: #fff
+              }
+
+              a.primary {
+                text-decoration: underline;
+                color: #000
+              }
+
+              span.secondary {
+                color: #707070
+              }
+
+              header {
+                margin-bottom: 32px
+              }
+
+              header img#logo {
+                width: 142px
+              }
+
+              #call-to-action {
+                margin-top: 16px;
+                margin-bottom: 16px
+              }
+
+              #message {
+                width: 480px;
+                color: #212121;
+                margin-bottom: 24px
+              }
+
+              .email-content {
+                font-weight: 400;
+                font-size: 14px
+              }
+
+              .introduction {
+                font-size: 14px
+              }
+
+              .announcement {
+                letter-spacing: -.56px;
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 20px
+              }
+
+              h3 {
+                margin-top: 32px;
+                margin-bottom: 8px
+              }
+
+              ul {
+                padding-left: 20px;
+                margin-top: 0;
+                margin-bottom: 16px
+              }
+          </style>
+        </head>
+
+        <body
+          style="margin:0;font-size:14px;font-weight:400;line-height:24px;font-family:Inter,system-ui,Helvetica,Arial,sans-serif">
+          <div class="container"
+              style="width:600px;padding:60px 60px 32px;margin:24px auto;box-sizing:border-box;border:1px solid #ededed">
+              <header style="margin-bottom:32px">
+                <img id="logo" src="https://ik.imagekit.io/whywidodo/ruang-edukasi.png" alt="Ruang Edukasi Logo"
+                    style="width: 250px; height: 80px;">
+                    <p style="border-top:solid 1px #ededed;font-size:1px;margin:0 auto;width:100%"></p>
+              </header>
+              <section id="message" style="width:480px;color:#212121;margin-bottom:24px">
+                <div class="email-content" style="font-weight:400;font-size:14px">
+                    <h2 class="announcement" style="letter-spacing:-.56px;font-size:18px;font-weight:600;margin-bottom:20px">
+                      Verifikasi OTP</h2>
+                    <div class="introduction" style="font-size:14px;">Halo ${data.fullName},
+                      <p>Untuk menyelesaikan pendaftaran di <strong>Ruang Edukasi</strong> silahkan masukan kode dibawah ini pada halaman verifikasi OTP.</p>
+                      <span style="font-weight:700;font-size:12px;padding:8px 12px;text-decoration:none;background-color:#6148FF;border-radius:4px;color:#fff">${randomOTP}</span>
+                      <p><i style="color: #FF3E37;">Kode OTP hanya berlaku selama 5 menit!</i></p>
+                    </div>
+                </div>
+              </section>
+              <table style="width:100%">
+                <tbody>
+                    <tr>
+                      <td align="center" style="font-size:0;padding:0 0 16px;word-break:break-word">
+                          <p style="border-top:solid 1px #ededed;font-size:1px;margin:0 auto;width:100%"></p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="left" style="font-size:0;padding:0;word-break:break-word">
+                          <div
+                            style="font-family:Inter,Segoe UI,Roboto,Arial,verdana,geneva,sans-serif;font-size:12px;font-style:normal;font-weight:400;line-height:20px;text-align:left;color:#999999">
+                            &copy; 2023 Ruang Edukasi</div>
+                      </td>
+                    </tr>
+                </tbody>
+              </table>
+          </div>
+        </body>
+
+        </html>
+        `,
     };
 
     transporter.sendMail(mailOptions, (err) => {
@@ -74,6 +215,7 @@ const register = async (req, res) => {
         message: "Registration successful. Please check your email",
         response: {
           verifId: data.emailToken,
+          verifEmail: data.email,
         },
       });
     });
@@ -362,11 +504,153 @@ const resetPassword = async (req, res) => {
       from: "Ruang Edukasi <system@gmail.com>",
       to: email,
       subject: "Ruang Edukasi - Reset Password",
-      html: `<p>
-        To reset your password, please click the button below <br/><br/>
-        <a href="${process.env.HOST}/admin/reset/${encryptPassword}"
-        style="background-color: #4CAF50; color: white; padding: 10px; text-decoration:none; text-align: center;">Reset password</a>
-        </p>`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <link rel="preconnect" href="https://fonts.gstatic.com">
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="=stylesheet">
+          <style>
+              body {
+                margin: 0;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 24px;
+                font-family: Inter, system-ui, Helvetica, Arial, sans-serif
+              }
+
+              strong {
+                font-weight: 600
+              }
+
+              .container {
+                width: 600px;
+                padding: 60px 60px 32px;
+                margin: 24px auto;
+                box-sizing: border-box;
+                border: 1px solid #ededed
+              }
+
+              .learning-center {
+                color: #212121;
+                text-decoration: underline
+              }
+
+              a:hover {
+                text-decoration: underline
+              }
+
+              a.btn {
+                font-size: 12px;
+                padding: 8px 12px;
+                text-decoration: none;
+                background-color: #ff6c37;
+                border-radius: 4px;
+                color: #fff
+              }
+
+              a.primary {
+                text-decoration: underline;
+                color: #000
+              }
+
+              span.secondary {
+                color: #707070
+              }
+
+              header {
+                margin-bottom: 32px
+              }
+
+              header img#logo {
+                width: 142px
+              }
+
+              #call-to-action {
+                margin-top: 16px;
+                margin-bottom: 16px
+              }
+
+              #message {
+                width: 480px;
+                color: #212121;
+                margin-bottom: 24px
+              }
+
+              .email-content {
+                font-weight: 400;
+                font-size: 14px
+              }
+
+              .introduction {
+                font-size: 14px
+              }
+
+              .announcement {
+                letter-spacing: -.56px;
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 20px
+              }
+
+              h3 {
+                margin-top: 32px;
+                margin-bottom: 8px
+              }
+
+              ul {
+                padding-left: 20px;
+                margin-top: 0;
+                margin-bottom: 16px
+              }
+          </style>
+        </head>
+
+        <body
+          style="margin:0;font-size:14px;font-weight:400;line-height:24px;font-family:Inter,system-ui,Helvetica,Arial,sans-serif">
+          <div class="container" style="width:600px;padding:60px 60px 32px;margin:24px auto;box-sizing:border-box;border:1px solid #ededed">
+              <header style="margin-bottom:32px">
+                <img id="logo" src="https://ik.imagekit.io/whywidodo/ruang-edukasi.png" alt="Ruang Edukasi Logo"
+                    style="width: 250px; height: 80px;">
+                <p style="border-top:solid 1px #ededed;font-size:1px;margin:0 auto;width:100%"></p>
+              </header>
+              <section id="message" style="width:480px;color:#212121;margin-bottom:24px">
+                <div class="email-content" style="font-weight:400;font-size:14px">
+                    <h2 class="announcement" style="letter-spacing:-.56px;font-size:18px;font-weight:600;margin-bottom:20px">Reset Password</h2>
+                    <div class="introduction" style="font-size:14px;">Halo ${adminCheck.fullName},
+                      <p>Untuk melanjutkan proses perubahan password, silahkan tekan tombol di bawah ini.</p>
+                      <a href="${process.env.HOST}/user/reset/${encryptPassword}"
+                          target="_blank" class="btn" style="font-weight:700;font-size:12px;padding:8px 12px;text-decoration:none;background-color:#6148FF;border-radius:4px;color:#fff">
+                                      Ganti Password</a>
+                      <p><i style="color: #FF3E37;">Link reset password hanya berlaku 5 menit!</i><br/>
+                      Abaikan pesan ini, apabila kamu tidak meminta perubahan password!</p>
+                    </div>
+                </div>
+              </section>
+              <table style="width:100%">
+                <tbody>
+                    <tr>
+                      <td align="center" style="font-size:0;padding:0 0 16px;word-break:break-word">
+                          <p style="border-top:solid 1px #ededed;font-size:1px;margin:0 auto;width:100%"></p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="left" style="font-size:0;padding:0;word-break:break-word">
+                          <div
+                            style="font-family:Inter,Segoe UI,Roboto,Arial,verdana,geneva,sans-serif;font-size:12px;font-style:normal;font-weight:400;line-height:20px;text-align:left;color:#999999">
+                                &copy; 2023 Ruang Edukasi</div>
+                      </td>
+                    </tr>
+                </tbody>
+              </table>
+          </div>
+        </body>
+
+        </html>
+        `,
     };
 
     transporter.sendMail(mailOptions, (err) => {

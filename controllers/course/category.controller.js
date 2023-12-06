@@ -9,6 +9,7 @@ const allCategory = async (req, res) => {
       select: {
         id: true,
         categoryName: true,
+        imageUrl: true,
       },
     });
 

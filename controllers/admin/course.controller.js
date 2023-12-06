@@ -33,6 +33,72 @@ module.exports = {
                 .json({ error: true, message: "Internal Server Error" });
         }
     },
+
+    updateCategory: async(req, res) => {
+        try {
+            const { categoryId } = req.params;
+            const readCategory = await courseCategory.findUnique({
+                where: {
+                    id: parseInt(categoryId),
+                },
+            });
+
+            if (!readCategory) {
+                return res.status(404).json({
+                    success: false,
+                    error: "Category not found",
+                });
+            }
+
+            let updatedData = {};
+
+            if (req.body.categoryName) {
+                updatedData.categoryName = req.body.categoryName;
+            }
+
+            if (req.file) {
+                const fileToString = req.file.buffer.toString('base64');
+                const currentDate = new Date();
+                const formattedDate = currentDate.toISOString().split('T')[0].replace(/-/g, '');
+                const fileName = `image_${ formattedDate }`;
+
+                const uploadFile = await imageKit.upload({
+                    fileName: fileName,
+                    file: fileToString,
+                });
+
+                updatedData.imageUrl = uploadFile.url;
+            }
+
+            if (Object.keys(updatedData).length === 0) {
+                return res.json({
+                    success: true,
+                    message: "No changes provided for update.",
+                });
+            }
+
+            const updateCategory = await courseCategory.update({
+                where: {
+                    id: parseInt(categoryId),
+                },
+                data: updatedData
+            });
+
+            return res.json({
+                success: true,
+                message: "Category edited Succesfully",
+                response: updateCategory,
+            });
+        } catch (error) {
+            console.error("Error updating payment method: ", error);
+            res.status(500).json({
+                success: false,
+                error: "Internal Server Error",
+            });      
+        }
+
+    },
+
     addLevel: async(req, res) => {
         const { level_name } = req.body;
         try {
@@ -53,6 +119,35 @@ module.exports = {
                 .json({ error: true, message: "Internal Server Error" });
         }
     },
+    updateLevel: async(req, res) => {
+        try {
+            const { levelId } = req.params;
+            const { level_name } = req.body;
+            if (!(level_name)) {
+                res.status(400).send("Level is Missing");
+                return
+            }
+
+            const updateLevel = await courseLevel.update({
+                where: {
+                    id: parseInt(levelId)
+                },
+                data: {
+                    levelName: level_name,
+                }
+            })
+            return res.status(201).json({
+                error: false,
+                message: "Level edited Succesfully",
+                response: updateLevel,
+            });
+        } catch (error) {
+            console.log(error);
+            return res
+                .status(500)
+                .json({ error: true, message: "Internal Server Error" });
+        }
+    },
     addType: async(req, res) => {
         const { type_name } = req.body;
         try {
@@ -65,6 +160,35 @@ module.exports = {
                 error: false,
                 message: "Type Create Succesfully",
                 response: addType,
+            });
+        } catch (error) {
+            console.log(error);
+            return res
+                .status(500)
+                .json({ error: true, message: "Internal Server Error" });
+        }
+    },
+    updateType: async(req, res) => {
+        try {
+            const { typeId } = req.params;
+            const { type_name } = req.body;
+            if (!(type_name)) {
+                res.status(400).send("Type is Missing");
+                return
+            }
+
+            const updateType = await courseType.update({
+                where: {
+                    id: parseInt(typeId)
+                },
+                data: {
+                    typeName: type_name,
+                }
+            })
+            return res.status(201).json({
+                error: false,
+                message: "Course Type edited Succesfully",
+                response: updateType,
             });
         } catch (error) {
             console.log(error);

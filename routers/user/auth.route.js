@@ -9,7 +9,7 @@ router.post("/renew-otp", controller.renewOTP);
 router.get("/verification-email/:key", controller.verificationEmail);
 router.post("/login", controller.login);
 router.post("/reset-password", controller.resetPassword);
-router.get("/set-password/:key", controller.setPassword);
+router.post("/set-password/:key", controller.setPassword);
 router.post("/requestOTP", checkToken, controller.requestOTP);
 router.post("/verifyOTP", checkToken, controller.verifyOTP);
 

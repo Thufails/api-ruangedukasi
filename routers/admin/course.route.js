@@ -10,8 +10,14 @@ router.post(
     multerLib.single("image_url"),
     controller.addCategory
 );
+router.put("/course/update-category/:categoryId",
+    multerLib.single("image_url"),
+    controller.updateCategory
+);
 router.post("/course/level", controller.addLevel);
+router.put("/course/update-level/:levelId", controller.updateLevel);
 router.post("/course/type", controller.addType);
+router.put("/course/update-type/:typeId", controller.updateType);
 router.post("/course", checkToken, controller.addCourse);
 router.post(
     "/course/content/:courseId",
