@@ -28,17 +28,56 @@ const list = async (req, res) => {
 };
 
 const profile = async (req, res) => {
-  const { city, country } = req.body;
+  const { full_name, phone_number, city, country } = req.body;
+  const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"];
   try {
     const jwtAdminId = res.sessionLogin.id; // From checktoken middlewares
+
+    let updatedData = {
+      fullName: full_name,
+      phoneNumber: phone_number,
+      city: city,
+      country: country,
+    };
+
+    if (req.file) {
+      try {
+        // Check filetype upload
+        if (!allowedImageTypes.includes(req.file.mimetype)) {
+          return res.status(400).json({
+            error: true,
+            message:
+              "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+          });
+        }
+
+        const fileTostring = req.file.buffer.toString("base64");
+        const uploadFile = await utils.imageKit.upload({
+          fileName: req.file.originalname,
+          file: fileTostring,
+        });
+
+        updatedData.imageUrl = uploadFile.url;
+      } catch (error) {
+        return res.status(500).json({
+          error: true,
+          message: "Error uploading image to server",
+        });
+      }
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.json({
+        success: true,
+        message: "No changes provided for update.",
+      });
+    }
+
     const data = await admin.update({
       where: {
         id: jwtAdminId,
       },
-      data: {
-        city: city,
-        country: country,
-      },
+      data: updatedData,
     });
 
     delete data["password"]; // hide password field in response

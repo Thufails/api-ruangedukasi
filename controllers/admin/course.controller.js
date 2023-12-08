@@ -15,11 +15,39 @@ module.exports = {
     addCategory: async(req, res) => {
         const { category_name } = req.body;
         try {
+            const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"];
+
+            let insertData = {
+                categoryName: category_name,
+            };
+
+            if (req.file) {
+                try {
+                    // Check filetype upload
+                    if (!allowedImageTypes.includes(req.file.mimetype)) {
+                        return res.status(400).json({
+                            error: true,
+                            message: "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+                        });
+                    }
+
+                    const fileTostring = req.file.buffer.toString("base64");
+                    const uploadFile = await imageKit.upload({
+                        fileName: req.file.originalname,
+                        file: fileTostring,
+                    });
+
+                    updatedData.imageUrl = uploadFile.url;
+                } catch (error) {
+                    return res.status(500).json({
+                        error: true,
+                        message: "Error uploading image to server",
+                    });
+                }
+            }
+
             const addCategory = await courseCategory.create({
-                data: {
-                    categoryName: category_name,
-                    //imageUrl: `/images/${req.file.filename}`
-                },
+                data: insertData,
             });
             return res.status(201).json({
                 error: false,
@@ -36,7 +64,10 @@ module.exports = {
 
     updateCategory: async(req, res) => {
         try {
+            const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"];
+
             const { categoryId } = req.params;
+            const { category_name } = req.body;
             const readCategory = await courseCategory.findUnique({
                 where: {
                     id: parseInt(categoryId),
@@ -52,27 +83,38 @@ module.exports = {
 
             let updatedData = {};
 
-            if (req.body.categoryName) {
-                updatedData.categoryName = req.body.categoryName;
+            if (category_name) {
+                updatedData.categoryName = category_name;
             }
 
             if (req.file) {
-                const fileToString = req.file.buffer.toString('base64');
-                const currentDate = new Date();
-                const formattedDate = currentDate.toISOString().split('T')[0].replace(/-/g, '');
-                const fileName = `image_${ formattedDate }`;
+                try {
+                    // Check filetype upload
+                    if (!allowedImageTypes.includes(req.file.mimetype)) {
+                        return res.status(400).json({
+                            error: true,
+                            message: "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+                        });
+                    }
 
-                const uploadFile = await imageKit.upload({
-                    fileName: fileName,
-                    file: fileToString,
-                });
+                    const fileTostring = req.file.buffer.toString("base64");
+                    const uploadFile = await imageKit.upload({
+                        fileName: req.file.originalname,
+                        file: fileTostring,
+                    });
 
-                updatedData.imageUrl = uploadFile.url;
+                    updatedData.imageUrl = uploadFile.url;
+                } catch (error) {
+                    return res.status(500).json({
+                        error: true,
+                        message: "Error uploading image to server",
+                    });
+                }
             }
 
             if (Object.keys(updatedData).length === 0) {
                 return res.json({
-                    success: true,
+                    error: true,
                     message: "No changes provided for update.",
                 });
             }
@@ -81,10 +123,10 @@ module.exports = {
                 where: {
                     id: parseInt(categoryId),
                 },
-                data: updatedData
+                data: updatedData,
             });
 
-            return res.json({
+            return res.status(201).json({
                 success: true,
                 message: "Category edited Succesfully",
                 response: updateCategory,
@@ -94,9 +136,8 @@ module.exports = {
             res.status(500).json({
                 success: false,
                 error: "Internal Server Error",
-            });      
+            });
         }
-
     },
 
     addLevel: async(req, res) => {
@@ -123,19 +164,19 @@ module.exports = {
         try {
             const { levelId } = req.params;
             const { level_name } = req.body;
-            if (!(level_name)) {
+            if (!level_name) {
                 res.status(400).send("Level is Missing");
-                return
+                return;
             }
 
             const updateLevel = await courseLevel.update({
                 where: {
-                    id: parseInt(levelId)
+                    id: parseInt(levelId),
                 },
                 data: {
                     levelName: level_name,
-                }
-            })
+                },
+            });
             return res.status(201).json({
                 error: false,
                 message: "Level edited Succesfully",
@@ -172,19 +213,19 @@ module.exports = {
         try {
             const { typeId } = req.params;
             const { type_name } = req.body;
-            if (!(type_name)) {
+            if (!type_name) {
                 res.status(400).send("Type is Missing");
-                return
+                return;
             }
 
             const updateType = await courseType.update({
                 where: {
-                    id: parseInt(typeId)
+                    id: parseInt(typeId),
                 },
                 data: {
                     typeName: type_name,
-                }
-            })
+                },
+            });
             return res.status(201).json({
                 error: false,
                 message: "Course Type edited Succesfully",

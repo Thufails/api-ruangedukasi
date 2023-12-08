@@ -28,17 +28,56 @@ const list = async (req, res) => {
 };
 
 const profile = async (req, res) => {
-  const { city, country } = req.body;
+  const { full_name, phone_number, city, country } = req.body;
+  const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"];
   try {
     const jwtUserId = res.sessionLogin.id; // From checktoken middlewares
+
+    let updatedData = {
+      fullName: full_name,
+      phoneNumber: phone_number,
+      city: city,
+      country: country,
+    };
+
+    if (req.file) {
+      try {
+        // Check filetype upload
+        if (!allowedImageTypes.includes(req.file.mimetype)) {
+          return res.status(400).json({
+            error: true,
+            message:
+              "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+          });
+        }
+
+        const fileTostring = req.file.buffer.toString("base64");
+        const uploadFile = await utils.imageKit.upload({
+          fileName: req.file.originalname,
+          file: fileTostring,
+        });
+
+        updatedData.imageUrl = uploadFile.url;
+      } catch (error) {
+        return res.status(500).json({
+          error: true,
+          message: "Error uploading image to server",
+        });
+      }
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.json({
+        success: true,
+        message: "No changes provided for update.",
+      });
+    }
+
     const data = await user.update({
       where: {
-        id: jwtUserId,
+        id: parseInt(jwtUserId),
       },
-      data: {
-        city: city,
-        country: country,
-      },
+      data: updatedData,
     });
 
     delete data["password"]; // hide password field in response
@@ -102,8 +141,61 @@ const changePassword = async (req, res) => {
   }
 };
 
+const logout = (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({
+          error: true,
+          message: "Logout failed",
+        });
+      }
+      res.status(200).json({
+        error: false,
+        message: "Logout successful",
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error.message || "Internal Server Error",
+    });
+  }
+};
+
+const changeAvatar = async (req, res) => {
+  try {
+    const jwtUserId = res.sessionLogin.id; // From checktoken middlewares
+    const { newAvatarUrl } = req.body;
+
+    // Implement logic update avatar URL di database
+    await user.update({
+      where: {
+        id: jwtUserId,
+      },
+      data: {
+        imageUrl: newAvatarUrl,
+      },
+    });
+
+    return res.status(200).json({
+      error: false,
+      message: "Avatar updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: error.message || "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   list,
   profile,
   changePassword,
+  logout,
+  changeAvatar,
 };
