@@ -14,8 +14,9 @@ const categoryRouter = require("./course/category.route");
 const levelRouter = require("./course/level.route");
 const typeRouter = require("./course/type.route");
 const courseRouter = require("./course/course.route");
+const coursePopularRouter = require("./course/popular.route");
 const searchCourseRouter = require("./course/search.route");
-const reviewRouter = require("./course/review.router")
+const reviewRouter = require("./course/review.router");
 
 // Default router
 router.get("/", (req, res) => {
@@ -45,6 +46,7 @@ router.use("/category", categoryRouter);
 router.use("/level", levelRouter);
 router.use("/type", typeRouter);
 router.use("/course", courseRouter);
+router.use("/popular", coursePopularRouter);
 router.use("/search", searchCourseRouter);
 router.use("/review", reviewRouter);
 
