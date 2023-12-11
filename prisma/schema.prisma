@@ -67,8 +67,9 @@ model Course {
   instructorName    String              @map("instructor_name")
   courseName        String              @map("course_name")
   courseDescription String?             @map("course_description")
+  imageUrl          String?             @map("image_url")
   price             BigInt?
-  rating            Int?
+  rating            Float?
   telegramLink      String?             @map("telegram_link")
   whatsappLink      String?             @map("whatsapp_link")
   studentCount      Int?                @map("student_count")

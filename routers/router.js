@@ -15,6 +15,7 @@ const levelRouter = require("./course/level.route");
 const typeRouter = require("./course/type.route");
 const courseRouter = require("./course/course.route");
 const searchCourseRouter = require("./course/search.route");
+const reviewRouter = require("./course/review.router")
 
 // Default router
 router.get("/", (req, res) => {
@@ -45,5 +46,6 @@ router.use("/level", levelRouter);
 router.use("/type", typeRouter);
 router.use("/course", courseRouter);
 router.use("/search", searchCourseRouter);
+router.use("/review", reviewRouter);
 
 module.exports = router;

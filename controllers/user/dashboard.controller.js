@@ -27,12 +27,41 @@ const profileDashboard = async (req, res) => {
             status: true,
             accountNumber: true,
             orderDate: true,
+            Course: {
+              select: {
+                courseName: true,
+                imageUrl: true,
+              },
+            },
           },
         },
         userCourseContent: {
           select: {
             courseId: true,
             courseName: true,
+            Course: {
+              select: {
+                instructorName: true,
+                rating: true,
+                imageUrl: true,
+                CourseType: {
+                  select: {
+                    typeName: true,
+                  },
+                },
+                CourseCategory: {
+                  select: {
+                    categoryName: true,
+                    imageUrl: true,
+                  },
+                },
+                CourseLevel: {
+                  select: {
+                    levelName: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -48,8 +77,25 @@ const profileDashboard = async (req, res) => {
 
     const responseData = {
       ...data,
-      riwayatOrder: data.order,
-      myCourse: data.userCourseContent,
+      riwayatOrder: data.order.map((dataOrder) => ({
+        id: dataOrder.id,
+        orderTrx: dataOrder.orderTrx,
+        courseName: dataOrder.Course.courseName,
+        thumbnailCourse: dataOrder.Course.imageUrl,
+        totalPrice: dataOrder.totalPrice,
+        status: dataOrder.status,
+        accountNumber: dataOrder.accountNumber,
+        orderDate: data.orderDate,
+      })),
+      myCourse: data.userCourseContent.map((dataUserCourse) => ({
+        courseId: dataUserCourse.courseId,
+        courseName: dataUserCourse.courseName,
+        instructorName: dataUserCourse.Course.instructorName,
+        thumbnailCourse: dataUserCourse.Course.imageUrl,
+        courseType: dataUserCourse.Course.CourseType.typeName,
+        courseCategory: dataUserCourse.Course.CourseCategory.categoryName,
+        courseLevel: dataUserCourse.Course.CourseLevel.levelName,
+      })),
     };
 
     delete responseData["order"];

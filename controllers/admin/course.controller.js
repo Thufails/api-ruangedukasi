@@ -37,7 +37,7 @@ module.exports = {
                         file: fileTostring,
                     });
 
-                    updatedData.imageUrl = uploadFile.url;
+                    insertData.imageUrl = uploadFile.url;
                 } catch (error) {
                     return res.status(500).json({
                         error: true,

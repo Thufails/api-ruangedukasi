@@ -17,6 +17,7 @@ const allCourse = async (req, res) => {
         instructorName: true,
         courseName: true,
         courseDescription: true,
+        imageUrl: true,
         price: true,
         rating: true,
         CourseCategory: {
@@ -40,6 +41,7 @@ const allCourse = async (req, res) => {
     // Convert BigInt to string before sending the response
     const responseData = data.map((course) => ({
       ...course,
+      thumbnailCourse: course.imageUrl,
       price: course.price ? parseFloat(course.price) : null,
       courseType: course.CourseType.typeName,
       courseCategory: course.CourseCategory.categoryName,
@@ -50,6 +52,7 @@ const allCourse = async (req, res) => {
       delete course.CourseType;
       delete course.CourseCategory;
       delete course.CourseLevel;
+      delete course.imageUrl;
     });
 
     return res.status(200).json({
@@ -95,6 +98,21 @@ const detailCourse = async (req, res) => {
           select: {
             id: true,
             description: true,
+          },
+        },
+        courseReview: {
+          select: {
+            id: true,
+            userId: true,
+            review: true,
+            rating: true,
+            createdAt: true,
+            updatedAt: true,
+            User: {
+              select: {
+                fullName: true,
+              },
+            },
           },
         },
       },
@@ -144,12 +162,24 @@ const detailCourse = async (req, res) => {
     // Convert BigInt to float before sending the response
     const responseData = {
       ...data,
+      rating: data.rating ? parseFloat(data.rating.toFixed(2)) : null,
       price: data.price ? parseFloat(data.price) : null,
       contentCount: parseInt(courseContentLength),
+      review: data.courseReview.map((courseReview) => ({
+        id: courseReview.id,
+        userId: courseReview.userId,
+        fullName: courseReview.User.fullName,
+        review: courseReview.review,
+        rating: courseReview.rating,
+        createdAt: courseReview.createdAt,
+        updatedAt: courseReview.updatedAt,
+      })),
       courseType: checkTypeName.typeName,
       courseCategory: checkCategoryName.categoryName,
       courseLevel: checkLevelName.levelName,
     };
+
+    delete responseData["courseReview"];
 
     return res.status(200).json({
       error: false,
