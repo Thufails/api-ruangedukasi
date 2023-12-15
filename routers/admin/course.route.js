@@ -35,4 +35,6 @@ router.post("/course/skill/:courseId", checkToken, controller.addCourseSkill);
 router.post("/course/target/:courseId", checkToken, controller.addCourseTarget);
 router.post("/course/coupon/:courseId", checkToken, controller.addCourseCoupon);
 
+router.get("/course", checkToken, controller.allCourseOwned);
+
 module.exports = router;

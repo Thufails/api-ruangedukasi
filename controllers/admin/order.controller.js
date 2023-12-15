@@ -47,7 +47,15 @@ const verificationPayment = async (req, res) => {
       where: {
         id: courseId,
       },
+      select: {
+        courseName: true,
+        studentCount: true,
+      },
     });
+
+    const nowStudentCount = checkCourse.studentCount;
+    const updateStudentCount = nowStudentCount + 1;
+
     // Add course content user
     await userCourseContent.create({
       data: {
@@ -55,6 +63,15 @@ const verificationPayment = async (req, res) => {
         courseId: checkOrder.courseId,
         courseName: checkCourse.courseName,
         courseCount: null,
+      },
+    });
+
+    await course.update({
+      where: {
+        id: courseId,
+      },
+      data: {
+        studentCount: parseInt(updateStudentCount),
       },
     });
 

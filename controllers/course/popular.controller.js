@@ -20,6 +20,7 @@ const popularCourse = async (req, res) => {
         imageUrl: true,
         price: true,
         rating: true,
+        studentCount: true,
         CourseCategory: {
           select: {
             categoryName: true,
@@ -35,21 +36,12 @@ const popularCourse = async (req, res) => {
             levelName: true,
           },
         },
-        userCourseContent: {
-          select: {
-            id: true,
-            userId: true,
-            courseId: true,
-            courseName: true,
-          },
-        },
       },
     });
 
     // Convert BigInt to string before sending the response
     const responseData = data.map((course) => ({
       ...course,
-      userCount: course.userCourseContent.length,
       thumbnailCourse: course.imageUrl,
       price: course.price ? parseFloat(course.price) : null,
       courseType: course.CourseType.typeName,
@@ -58,14 +50,13 @@ const popularCourse = async (req, res) => {
     }));
 
     responseData.forEach((course) => {
-      delete course.userCourseContent;
       delete course.CourseType;
       delete course.CourseCategory;
       delete course.CourseLevel;
       delete course.imageUrl;
     });
 
-    responseData.sort((a, b) => b.userCount - a.userCount); // Descending based on userCount
+    responseData.sort((a, b) => b.studentCount - a.studentCount); // Descending based on userCount
 
     const limitedResponseData = responseData.slice(0, 7); // 7 data for response
 
@@ -102,6 +93,7 @@ const popularCourseCategory = async (req, res) => {
         imageUrl: true,
         price: true,
         rating: true,
+        studentCount: true,
         CourseCategory: {
           select: {
             categoryName: true,
@@ -117,21 +109,12 @@ const popularCourseCategory = async (req, res) => {
             levelName: true,
           },
         },
-        userCourseContent: {
-          select: {
-            id: true,
-            userId: true,
-            courseId: true,
-            courseName: true,
-          },
-        },
       },
     });
 
     // Convert BigInt to string before sending the response
     const responseData = data.map((course) => ({
       ...course,
-      userCount: course.userCourseContent.length,
       thumbnailCourse: course.imageUrl,
       price: course.price ? parseFloat(course.price) : null,
       courseType: course.CourseType.typeName,
@@ -140,14 +123,13 @@ const popularCourseCategory = async (req, res) => {
     }));
 
     responseData.forEach((course) => {
-      delete course.userCourseContent;
       delete course.CourseType;
       delete course.CourseCategory;
       delete course.CourseLevel;
       delete course.imageUrl;
     });
 
-    responseData.sort((a, b) => b.userCount - a.userCount); // Descending based on userCount
+    responseData.sort((a, b) => b.studentCount - a.studentCount); // Descending based on userCount
 
     const limitedResponseData = responseData.slice(0, 7); // 7 data for response
 

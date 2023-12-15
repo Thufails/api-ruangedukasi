@@ -8,6 +8,7 @@ const adminOrderCourseRouter = require("./admin/order.route");
 const authUserRouter = require("./user/auth.route");
 const profileUserRouter = require("./user/profile.route");
 const userOrderCourseRouter = require("./user/order.route");
+const userEnrollCourseRouter = require("./user/enroll.route");
 const userCouponCourseRouter = require("./user/coupon.route");
 const userDashboardRouter = require("./user/dashboard.route");
 const categoryRouter = require("./course/category.route");
@@ -38,6 +39,7 @@ router.use("/admin/order", adminOrderCourseRouter);
 router.use("/auth/user", authUserRouter);
 router.use("/user/profile", profileUserRouter);
 router.use("/user/order", userOrderCourseRouter);
+router.use("/user/enroll", userEnrollCourseRouter);
 router.use("/user/dashboard", userDashboardRouter);
 router.use("/check/coupon", userCouponCourseRouter);
 
