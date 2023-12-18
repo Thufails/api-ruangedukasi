@@ -1,7 +1,7 @@
 require("dotenv").config();
 // Google OAuth
 const { google } = require("googleapis");
-const { oauth2Client, scopes, authorizationUrl } = require("../../utils/oauth");
+const { oauth2Client } = require("../../utils/oauth");
 const { user } = require("../../models");
 const utils = require("../../utils");
 const jwt = require("jsonwebtoken");
@@ -57,7 +57,9 @@ const googleOauthCallback = async (req, res) => {
   return res.status(200).json({
     error: false,
     message: "Login successful",
-    response: token,
+    response: {
+      token: token,
+    },
   });
 };
 

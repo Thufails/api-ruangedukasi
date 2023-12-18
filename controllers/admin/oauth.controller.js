@@ -1,7 +1,11 @@
 require("dotenv").config();
 // Google OAuth
 const { google } = require("googleapis");
-const { oauth2Client, scopes, authorizationUrl } = require("../../utils/oauth");
+const {
+  oauth2ClientAdmin,
+  scopes,
+  authorizationUrl,
+} = require("../../utils/oauth");
 const { admin } = require("../../models");
 const utils = require("../../utils");
 const jwt = require("jsonwebtoken");
@@ -9,11 +13,11 @@ const secretKey = process.env.JWT_KEY || "no_secret";
 
 const googleOauthCallback = async (req, res) => {
   const { code } = req.query;
-  const { tokens } = await oauth2Client.getToken(code.toString());
-  oauth2Client.setCredentials(tokens);
+  const { tokens } = await oauth2ClientAdmin.getToken(code.toString());
+  oauth2ClientAdmin.setCredentials(tokens);
 
   const oauth2 = google.oauth2({
-    auth: oauth2Client,
+    auth: oauth2ClientAdmin,
     version: "v2",
   });
 
@@ -57,7 +61,9 @@ const googleOauthCallback = async (req, res) => {
   return res.status(200).json({
     error: false,
     message: "Login successful",
-    response: token,
+    response: {
+      token: token,
+    },
   });
 };
 

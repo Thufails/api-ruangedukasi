@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { oauth2Client, scopes, authorizationUrl } = require("../../utils/oauth");
+const { authorizationUrlAdmin } = require("../../utils/oauth");
 const controller = require("../../controllers/admin/oauth.controller");
 
 // Google Login
 router.get("/google", (req, res) => {
-  res.redirect(authorizationUrl);
+  res.redirect(authorizationUrlAdmin);
+});
+router.post("/google", (req, res) => {
+  res.redirect(authorizationUrlAdmin);
 });
 
 // Google Callback (If Login Successful)
