@@ -314,7 +314,7 @@ module.exports = {
         try {
             const courseId = req.params.courseId; // courseId params from admin course.route
             const jwtAdminId = res.sessionLogin.id; // From checktoken middlewares
-            const { content_title, video_link } = req.body;
+            const { content_title, video_link, status } = req.body;
             const checkAdminExist = await admin.findUniqueOrThrow({
                 where: { id: jwtAdminId },
             });
