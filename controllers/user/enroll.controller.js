@@ -12,6 +12,51 @@ const enrollCourse = async (req, res) => {
     const jwtUserId = res.sessionLogin.id; // From checktoken middlewares
     const courseId = req.params.courseId; // params courseId from course.route
 
+    const alreadyEnroll = await order.findFirst({
+      where: {
+        courseId: parseInt(courseId),
+        userId: parseInt(jwtUserId),
+      },
+    });
+
+    if (alreadyEnroll) {
+      return res.status(200).json({
+        error: false,
+        message: "Course already enroll",
+      });
+    }
+
+    const alreadyInCourse = await userCourseContent.findFirst({
+      where: {
+        courseId: parseInt(courseId),
+        userId: parseInt(jwtUserId),
+      },
+    });
+
+    if (alreadyInCourse) {
+      return res.status(200).json({
+        error: false,
+        message: "Course already active",
+      });
+    }
+
+    const cekTypeCourse = await course.findFirst({
+      where: {
+        id: parseInt(courseId),
+      },
+      select: {
+        courseTypeId: true,
+      },
+    });
+
+    const valueTypeCourse = cekTypeCourse.courseTypeId;
+    if (parseInt(valueTypeCourse) != 2) {
+      return res.status(200).json({
+        error: false,
+        message: "Enroll only for free course",
+      });
+    }
+
     const checkCourse = await course.findFirst({
       where: {
         id: parseInt(courseId),

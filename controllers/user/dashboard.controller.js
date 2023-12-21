@@ -22,6 +22,7 @@ const profileDashboard = async (req, res) => {
           },
           select: {
             id: true,
+            courseId: true,
             orderTrx: true,
             totalPrice: true,
             status: true,
@@ -80,6 +81,7 @@ const profileDashboard = async (req, res) => {
       riwayatOrder: data.order.map((dataOrder) => ({
         id: dataOrder.id,
         orderTrx: dataOrder.orderTrx,
+        courseId: dataOrder.courseId,
         courseName: dataOrder.Course.courseName,
         thumbnailCourse: dataOrder.Course.imageUrl,
         totalPrice: dataOrder.totalPrice,

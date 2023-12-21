@@ -6,6 +6,7 @@ const profileAdminRouter = require("./admin/profile.route");
 const courseAdminRouter = require("./admin/course.route");
 const couponAdminRouter = require("./admin/coupon.route");
 const adminOrderCourseRouter = require("./admin/order.route");
+const ppnCourseRouter = require("./admin/ppn.route");
 const oauthUserRouter = require("./user/oauth.route");
 const authUserRouter = require("./user/auth.route");
 const profileUserRouter = require("./user/profile.route");
@@ -37,6 +38,7 @@ router.use("/admin/profile", profileAdminRouter);
 router.use("/admin", courseAdminRouter);
 router.use("/admin/coupon", couponAdminRouter);
 router.use("/admin/order", adminOrderCourseRouter);
+router.use("/admin/ppn", ppnCourseRouter);
 
 // User
 router.use("/oauth/user", oauthUserRouter);

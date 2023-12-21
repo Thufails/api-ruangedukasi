@@ -5,6 +5,7 @@ const {
   courseCategory,
   courseLevel,
   userCourseContent,
+  coursePPN,
 } = require("../../models");
 
 const allCourse = async (req, res) => {
@@ -194,9 +195,21 @@ const detailCourse = async (req, res) => {
     // Check length in courseContent
     const courseContentLength = data.courseContent.length;
 
+    // Check Pajak
+    const dataPajak = await coursePPN.findFirst({
+      select: {
+        ppn: true,
+      },
+    });
+    const priceFinal = data.price ? parseFloat(data.price) : 0;
+    const ppnPrice = (parseInt(dataPajak.ppn) / 100) * priceFinal;
+
     // Convert BigInt to float before sending the response
     const responseData = {
       ...data,
+      ppnPercent: parseInt(dataPajak.ppn),
+      ppnPrice: parseFloat(ppnPrice),
+      priceAfterPpn: parseFloat(priceFinal) + parseFloat(ppnPrice),
       alreadyBuy: alreadyBuy,
       rating: data.rating ? parseFloat(data.rating.toFixed(2)) : null,
       price: data.price ? parseFloat(data.price) : null,

@@ -218,3 +218,10 @@ model UserCourseContent {
 
   @@map("usercoursecontent")
 }
+
+model CoursePPN {
+  id  Int @id @default(autoincrement())
+  ppn Int
+
+  @@map("courseppn")
+}

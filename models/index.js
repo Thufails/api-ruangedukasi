@@ -15,4 +15,5 @@ module.exports = {
   user: prisma.user,
   userCourseContent: prisma.userCourseContent,
   order: prisma.order,
+  coursePPN: prisma.coursePPN,
 };
