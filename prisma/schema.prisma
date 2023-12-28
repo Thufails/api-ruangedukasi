@@ -63,50 +63,52 @@ model Admin {
 }
 
 model Course {
-  id                Int                 @id @default(autoincrement())
-  instructorName    String              @map("instructor_name")
-  courseName        String              @map("course_name")
-  courseDescription String?             @map("course_description")
-  imageUrl          String?             @map("image_url")
-  price             BigInt?
-  rating            Float?
-  telegramLink      String?             @map("telegram_link")
-  whatsappLink      String?             @map("whatsapp_link")
-  studentCount      Int?                @map("student_count")
-  videoCount        Int?                @map("video_count")
-  readingCount      Int?                @map("reading_count")
-  contentCount      Int?                @map("content_count")
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  CourseType        CourseType?         @relation(fields: [courseTypeId], references: [id])
-  courseTypeId      Int?                @map("course_type_id")
-  CourseCategory    CourseCategory?     @relation(fields: [courseCategoryId], references: [id])
-  courseCategoryId  Int?                @map("course_category_id")
-  CourseLevel       CourseLevel?        @relation(fields: [courseLevelId], references: [id])
-  courseLevelId     Int?                @map("course_level_id")
-  Admin             Admin?              @relation(fields: [adminId], references: [id])
-  adminId           Int?                @map("admin_id")
-  courseContent     CourseContent[]
-  courseTarget      CourseTarget[]
-  courseSkill       CourseSkill[]
-  courseReview      CourseReview[]
-  courseCoupon      CourseCoupon[]
-  order             Order[]
-  userCourseContent UserCourseContent[]
+  id                        Int                         @id @default(autoincrement())
+  instructorName            String                      @map("instructor_name")
+  courseName                String                      @map("course_name")
+  courseDescription         String?                     @map("course_description")
+  imageUrl                  String?                     @map("image_url")
+  price                     BigInt?
+  rating                    Float?
+  telegramLink              String?                     @map("telegram_link")
+  whatsappLink              String?                     @map("whatsapp_link")
+  studentCount              Int?                        @map("student_count")
+  videoCount                Int?                        @map("video_count")
+  readingCount              Int?                        @map("reading_count")
+  contentCount              Int?                        @map("content_count")
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  CourseType                CourseType?                 @relation(fields: [courseTypeId], references: [id])
+  courseTypeId              Int?                        @map("course_type_id")
+  CourseCategory            CourseCategory?             @relation(fields: [courseCategoryId], references: [id])
+  courseCategoryId          Int?                        @map("course_category_id")
+  CourseLevel               CourseLevel?                @relation(fields: [courseLevelId], references: [id])
+  courseLevelId             Int?                        @map("course_level_id")
+  Admin                     Admin?                      @relation(fields: [adminId], references: [id])
+  adminId                   Int?                        @map("admin_id")
+  courseContent             CourseContent[]
+  courseTarget              CourseTarget[]
+  courseSkill               CourseSkill[]
+  courseReview              CourseReview[]
+  courseCoupon              CourseCoupon[]
+  order                     Order[]
+  userCourseContent         UserCourseContent[]
+  userCourseContentProgress UserCourseContentProgress[]
 
   @@map("course")
 }
 
 model CourseContent {
-  id           Int      @id @default(autoincrement())
-  contentTitle String?  @map("content_title")
-  videoLink    String?  @map("video_link")
-  readingLink  String?  @map("reading_link")
-  status       String?
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  Course       Course?  @relation(fields: [courseId], references: [id])
-  courseId     Int?     @map("course_id")
+  id                        Int                         @id @default(autoincrement())
+  contentTitle              String?                     @map("content_title")
+  videoLink                 String?                     @map("video_link")
+  readingLink               String?                     @map("reading_link")
+  status                    String?
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  Course                    Course?                     @relation(fields: [courseId], references: [id])
+  courseId                  Int?                        @map("course_id")
+  userCourseContentProgress UserCourseContentProgress[]
 
   @@map("coursecontent")
 }
@@ -164,24 +166,25 @@ model CourseCoupon {
 }
 
 model User {
-  id                Int                 @id @default(autoincrement())
-  fullName          String              @map("full_name")
-  email             String              @unique
-  password          String
-  imageUrl          String?             @map("image_url")
-  phoneNumber       String?             @map("phone_number")
-  city              String?
-  country           String?
-  emailToken        String?             @map("email_token")
-  passwordToken     String?             @map("password_token")
-  otpCode           String?             @map("otp_code")
-  otpExpiration     DateTime?           @map("otp_expiration")
-  status            String?
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  courseReview      CourseReview[]
-  userCourseContent UserCourseContent[]
-  order             Order[]
+  id                        Int                         @id @default(autoincrement())
+  fullName                  String                      @map("full_name")
+  email                     String                      @unique
+  password                  String
+  imageUrl                  String?                     @map("image_url")
+  phoneNumber               String?                     @map("phone_number")
+  city                      String?
+  country                   String?
+  emailToken                String?                     @map("email_token")
+  passwordToken             String?                     @map("password_token")
+  otpCode                   String?                     @map("otp_code")
+  otpExpiration             DateTime?                   @map("otp_expiration")
+  status                    String?
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  courseReview              CourseReview[]
+  userCourseContent         UserCourseContent[]
+  order                     Order[]
+  userCourseContentProgress UserCourseContentProgress[]
 
   @@map("user")
 }
@@ -224,4 +227,18 @@ model CoursePPN {
   ppn Int
 
   @@map("courseppn")
+}
+
+model UserCourseContentProgress {
+  id              Int            @id @default(autoincrement())
+  courseName      String?        @map("course_name")
+  status          String?
+  User            User?          @relation(fields: [userId], references: [id])
+  userId          Int?
+  Course          Course?        @relation(fields: [courseId], references: [id])
+  courseId        Int?
+  CourseContent   CourseContent? @relation(fields: [courseContentId], references: [id])
+  courseContentId Int?
+
+  @@map("coursecontentprogress")
 }

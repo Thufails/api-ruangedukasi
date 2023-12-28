@@ -1,4 +1,5 @@
 const { course, courseContent } = require("../../models");
+const { allCourse } = require("./course.controller");
 
 const searchCourse = async (req, res) => {
   try {
@@ -78,17 +79,56 @@ const searchCourse = async (req, res) => {
 
 const searchMultiCourse = async (req, res) => {
   try {
-    const catSearchParams = req.query.catId; // category is query params key
+    const catSearchParams = req.query.catId;
+    const levelSearchParams = req.query.levelId;
+    const typeSearchParams = req.query.typeId;
+
+    if (!catSearchParams && !levelSearchParams && !typeSearchParams) {
+      return allCourse(req, res);
+    }
 
     const categorySearchArray = Array.isArray(catSearchParams)
       ? catSearchParams.map(Number)
       : [Number(catSearchParams)];
 
+    const levelSearchArray = Array.isArray(levelSearchParams)
+      ? levelSearchParams.map(Number)
+      : [Number(levelSearchParams)];
+
+    const typeSearchArray = Array.isArray(typeSearchParams)
+      ? typeSearchParams.map(Number)
+      : [Number(typeSearchParams)];
+
     const data = await course.findMany({
       where: {
-        courseCategoryId: {
-          in: categorySearchArray,
-        },
+        AND: [
+          // Category search
+          catSearchParams
+            ? {
+                courseCategoryId: {
+                  in: categorySearchArray,
+                },
+              }
+            : null,
+
+          // Level search
+          levelSearchParams
+            ? {
+                courseLevelId: {
+                  in: levelSearchArray,
+                },
+              }
+            : null,
+
+          // Type search
+          typeSearchParams
+            ? {
+                courseTypeId: {
+                  in: typeSearchArray,
+                },
+              }
+            : null,
+        ].filter(Boolean),
       },
       orderBy: {
         id: "asc",
@@ -100,6 +140,7 @@ const searchMultiCourse = async (req, res) => {
         courseDescription: true,
         price: true,
         rating: true,
+        imageUrl: true,
         CourseCategory: {
           select: {
             categoryName: true,
@@ -115,12 +156,22 @@ const searchMultiCourse = async (req, res) => {
             levelName: true,
           },
         },
+        userCourseContent: {
+          select: {
+            id: true,
+            userId: true,
+            courseId: true,
+            courseName: true,
+          },
+        },
       },
     });
 
     // Convert BigInt to string before sending the response
     const responseData = data.map((course) => ({
       ...course,
+      userCount: course.userCourseContent.length,
+      thumbnailCourse: course.imageUrl,
       price: course.price ? parseFloat(course.price) : null,
       courseType: course.CourseType.typeName,
       courseCategory: course.CourseCategory.categoryName,
@@ -128,23 +179,25 @@ const searchMultiCourse = async (req, res) => {
     }));
 
     responseData.forEach((course) => {
+      delete course.userCourseContent;
       delete course.CourseType;
       delete course.CourseCategory;
       delete course.CourseLevel;
+      delete course.imageUrl;
     });
 
     const responseDataLength = responseData.length;
     if (responseDataLength !== 0) {
       return res.status(200).json({
         error: false,
-        message: `Load course with query "${categorySearchArray}" successful`,
+        message: `Load course with multi search successful`,
         response: responseData,
       });
     }
 
     return res.status(404).json({
       error: false,
-      message: `Course with query "${categorySearchArray}" not found`,
+      message: `Course with query "catId:${categorySearchArray}, levelId:${levelSearchArray} typeId:${typeSearchArray}" not found`,
       response: null,
     });
   } catch (error) {

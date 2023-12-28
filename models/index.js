@@ -16,4 +16,5 @@ module.exports = {
   userCourseContent: prisma.userCourseContent,
   order: prisma.order,
   coursePPN: prisma.coursePPN,
+  userCourseContentProgress: prisma.userCourseContentProgress,
 };
