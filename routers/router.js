@@ -23,6 +23,7 @@ const courseRouter = require("./course/course.route");
 const coursePopularRouter = require("./course/popular.route");
 const searchCourseRouter = require("./course/search.route");
 const reviewRouter = require("./course/review.router");
+const discussRouter = require("./course/discuss.route");
 
 // Default router
 router.get("/", (req, res) => {
@@ -61,5 +62,6 @@ router.use("/course", courseRouter);
 router.use("/popular", coursePopularRouter);
 router.use("/search", searchCourseRouter);
 router.use("/review", reviewRouter);
+router.use("/discuss", discussRouter);
 
 module.exports = router;

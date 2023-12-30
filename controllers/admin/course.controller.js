@@ -325,12 +325,16 @@ module.exports = {
                     .json({ error: true, message: "Admin not found" });
             }
 
+            if (status == null) {
+                status = "Active";
+            }
+
             const addCourseContent = await courseContent.create({
                 data: {
                     courseId: parseInt(courseId),
                     contentTitle: content_title,
                     videoLink: video_link,
-                    status: "Active",
+                    status: status,
                 },
             });
 

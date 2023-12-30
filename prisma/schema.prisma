@@ -94,6 +94,7 @@ model Course {
   order                     Order[]
   userCourseContent         UserCourseContent[]
   userCourseContentProgress UserCourseContentProgress[]
+  discussions               Discussion[]               
 
   @@map("course")
 }
@@ -185,6 +186,7 @@ model User {
   userCourseContent         UserCourseContent[]
   order                     Order[]
   userCourseContentProgress UserCourseContentProgress[]
+  discussions               Discussion[]                
 
   @@map("user")
 }
@@ -241,4 +243,20 @@ model UserCourseContentProgress {
   courseContentId Int?
 
   @@map("coursecontentprogress")
+}
+
+model Discussion {
+  id        Int           @id @default(autoincrement())
+  courseId  Int
+  userId    Int
+  comment   String
+  parentId  Int?
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  User      User          @relation(fields: [userId], references: [id])
+  parent    Discussion?   @relation("Replies", fields: [parentId], references: [id])
+  replies   Discussion[]  @relation("Replies")
+  Course    Course        @relation(fields: [courseId], references: [id])
+
+  @@map("discussion")
 }
