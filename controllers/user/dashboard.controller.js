@@ -61,6 +61,18 @@ const profileDashboard = async (req, res) => {
                     levelName: true,
                   },
                 },
+                courseContent: {
+                  select: {
+                    contentTitle: true,
+                  },
+                },
+                userCourseContentProgress: {
+                  select: {
+                    userId: true,
+                    courseName: true,
+                    status: true,
+                  },
+                },
               },
             },
           },
@@ -89,15 +101,34 @@ const profileDashboard = async (req, res) => {
         accountNumber: dataOrder.accountNumber,
         orderDate: data.orderDate,
       })),
-      myCourse: data.userCourseContent.map((dataUserCourse) => ({
-        courseId: dataUserCourse.courseId,
-        courseName: dataUserCourse.courseName,
-        instructorName: dataUserCourse.Course.instructorName,
-        thumbnailCourse: dataUserCourse.Course.imageUrl,
-        courseType: dataUserCourse.Course.CourseType.typeName,
-        courseCategory: dataUserCourse.Course.CourseCategory.categoryName,
-        courseLevel: dataUserCourse.Course.CourseLevel.levelName,
-      })),
+      myCourse: data.userCourseContent.map((dataUserCourse) => {
+        const courseId = dataUserCourse.courseId;
+        const userId = jwtUserId;
+
+        const courseCount = dataUserCourse.Course.courseContent.length;
+
+        const userCourseContentProgress =
+          dataUserCourse.Course.userCourseContentProgress.filter(
+            (progress) => progress.userId == userId
+          );
+
+        const percentProgress = parseFloat(
+          (userCourseContentProgress.length / courseCount) * 100
+        );
+
+        return {
+          courseId: courseId,
+          courseName: dataUserCourse.courseName,
+          instructorName: dataUserCourse.Course.instructorName,
+          thumbnailCourse: dataUserCourse.Course.imageUrl,
+          courseType: dataUserCourse.Course.CourseType.typeName,
+          courseCategory: dataUserCourse.Course.CourseCategory.categoryName,
+          courseLevel: dataUserCourse.Course.CourseLevel.levelName,
+          courseContent: courseCount,
+          courseRating: dataUserCourse.Course.rating,
+          percentProgress: percentProgress,
+        };
+      }),
     };
 
     delete responseData["order"];
@@ -105,7 +136,7 @@ const profileDashboard = async (req, res) => {
 
     return res.status(200).json({
       error: false,
-      message: "Load dashboard successful",
+      message: "Muat dashbord berhasil",
       response: responseData,
     });
   } catch (error) {

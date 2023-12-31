@@ -7,62 +7,60 @@ const utils = require("../../utils");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWT_KEY || "no_secret";
 
-const googleOauthCallback = async (req, res) => {
-  const { code } = req.query;
-  const { tokens } = await oauth2Client.getToken(code.toString());
-  oauth2Client.setCredentials(tokens);
+const googleOauthCallback = async(req, res) => {
+    const { code } = req.query;
+    const { tokens } = await oauth2Client.getToken(code.toString());
+    oauth2Client.setCredentials(tokens);
 
-  const oauth2 = google.oauth2({
-    auth: oauth2Client,
-    version: "v2",
-  });
-
-  const { data } = await oauth2.userinfo.get();
-
-  // If data email and name empty
-  if (!data.email || !data.name) {
-    return res.status(200).json({
-      response: data,
+    const oauth2 = google.oauth2({
+        auth: oauth2Client,
+        version: "v2",
     });
-  }
 
-  let userExist = await user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
+    const { data } = await oauth2.userinfo.get();
 
-  if (!userExist) {
-    // If user not found
-    const encryptEmail = await utils.encryptEmail();
-    userExist = await user.create({
-      data: {
-        fullName: data.name,
-        email: data.email,
-        password: await utils.encryptPassword(encryptEmail),
-        status: "Active",
-      },
-    });
-  }
-
-  // Generate JWT token
-  const token = jwt.sign(
-    { id: userExist.id, email: userExist.email },
-    secretKey,
-    {
-      expiresIn: "6h",
+    // If data email and name empty
+    if (!data.email || !data.name) {
+        return res.status(200).json({
+            response: data,
+        });
     }
-  );
 
-  return res.status(200).json({
-    error: false,
-    message: "Login successful",
-    response: {
-      token: token,
-    },
-  });
+    let userExist = await user.findUnique({
+        where: {
+            email: data.email,
+        },
+    });
+
+    if (!userExist) {
+        // If user not found
+        const encryptEmail = await utils.encryptEmail();
+        userExist = await user.create({
+            data: {
+                fullName: data.name,
+                email: data.email,
+                password: await utils.encryptPassword(encryptEmail),
+                status: "Active",
+            },
+        });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: userExist.id, email: userExist.email },
+        secretKey, {
+            expiresIn: "6h",
+        }
+    );
+
+    return res.status(200).json({
+        error: false,
+        message: "Login berhasil",
+        response: {
+            token: token,
+        },
+    });
 };
 
 module.exports = {
-  googleOauthCallback,
+    googleOauthCallback,
 };
