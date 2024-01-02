@@ -93,8 +93,8 @@ model Course {
   courseCoupon              CourseCoupon[]
   order                     Order[]
   userCourseContent         UserCourseContent[]
-  userCourseContentProgress UserCourseContentProgress[]
-  discussions               Discussion[]               
+  userCourseContentProgress UserCourseContentProgress[]  
+  discussions               Discussion[]            
 
   @@map("course")
 }
@@ -186,7 +186,8 @@ model User {
   userCourseContent         UserCourseContent[]
   order                     Order[]
   userCourseContentProgress UserCourseContentProgress[]
-  discussions               Discussion[]                
+  discussions               Discussion[]
+  replies                   DiscussionReply[]           
 
   @@map("user")
 }
@@ -246,17 +247,29 @@ model UserCourseContentProgress {
 }
 
 model Discussion {
-  id        Int           @id @default(autoincrement())
-  courseId  Int
-  userId    Int
-  comment   String
-  parentId  Int?
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
-  User      User          @relation(fields: [userId], references: [id])
-  parent    Discussion?   @relation("Replies", fields: [parentId], references: [id])
-  replies   Discussion[]  @relation("Replies")
-  Course    Course        @relation(fields: [courseId], references: [id])
+  id        Int               @id @default(autoincrement())
+  courseId  Int?
+  course    Course?           @relation(fields: [courseId], references: [id])
+  userId    Int?
+  user      User?             @relation(fields: [userId], references: [id])
+  comment   String?
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  replies   DiscussionReply[] @relation("Replies")
 
   @@map("discussion")
+}
+
+model DiscussionReply {
+  id           Int        @id @default(autoincrement())
+  parentId     Int?
+  discussionId Int?
+  discussion   Discussion?@relation("Replies", fields: [discussionId], references: [id])
+  userId       Int?
+  User         User?      @relation(fields: [userId], references: [id])
+  reply        String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("discussion_reply")
 }

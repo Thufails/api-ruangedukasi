@@ -27,7 +27,7 @@ module.exports = {
                     if (!allowedImageTypes.includes(req.file.mimetype)) {
                         return res.status(400).json({
                             error: true,
-                            message: "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+                            message: "Jenis file tidak valid",
                         });
                     }
 
@@ -41,7 +41,7 @@ module.exports = {
                 } catch (error) {
                     return res.status(500).json({
                         error: true,
-                        message: "Error uploading image to server",
+                        message: "Terjadi kesalahan saat mengunggah gambar ke server",
                     });
                 }
             }
@@ -51,7 +51,7 @@ module.exports = {
             });
             return res.status(201).json({
                 error: false,
-                message: "Category Create Succesfully",
+                message: "Kategori Berhasil Dibuat",
                 response: addCategory,
             });
         } catch (error) {
@@ -77,7 +77,7 @@ module.exports = {
             if (!readCategory) {
                 return res.status(404).json({
                     success: false,
-                    error: "Category not found",
+                    error: "Kategori tidak ditemukan",
                 });
             }
 
@@ -93,7 +93,7 @@ module.exports = {
                     if (!allowedImageTypes.includes(req.file.mimetype)) {
                         return res.status(400).json({
                             error: true,
-                            message: "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+                            message: "Jenis file tidak valid.",
                         });
                     }
 
@@ -107,7 +107,7 @@ module.exports = {
                 } catch (error) {
                     return res.status(500).json({
                         error: true,
-                        message: "Error uploading image to server",
+                        message: "Terjadi kesalahan saat mengunggah gambar ke server",
                     });
                 }
             }
@@ -115,7 +115,7 @@ module.exports = {
             if (Object.keys(updatedData).length === 0) {
                 return res.json({
                     error: true,
-                    message: "No changes provided for update.",
+                    message: "Tidak ada perubahan yang diperbarui",
                 });
             }
 
@@ -128,7 +128,7 @@ module.exports = {
 
             return res.status(201).json({
                 success: true,
-                message: "Category edited Succesfully",
+                message: "Kategori Berhasil diedit",
                 response: updateCategory,
             });
         } catch (error) {
@@ -150,7 +150,7 @@ module.exports = {
             });
             return res.status(201).json({
                 error: false,
-                message: "Level Create Succesfully",
+                message: "Level Berhasil Dibuat",
                 response: addLevel,
             });
         } catch (error) {
@@ -179,7 +179,7 @@ module.exports = {
             });
             return res.status(201).json({
                 error: false,
-                message: "Level edited Succesfully",
+                message: "Level kursus berhasil diedit",
                 response: updateLevel,
             });
         } catch (error) {
@@ -199,7 +199,7 @@ module.exports = {
             });
             return res.status(201).json({
                 error: false,
-                message: "Type Create Succesfully",
+                message: "Tipe Berhasil Dibuat",
                 response: addType,
             });
         } catch (error) {
@@ -228,7 +228,7 @@ module.exports = {
             });
             return res.status(201).json({
                 error: false,
-                message: "Course Type edited Succesfully",
+                message: "Jenis kursus berhasil diedit",
                 response: updateType,
             });
         } catch (error) {
@@ -277,7 +277,7 @@ module.exports = {
                     rating: parseInt(rating),
                     telegramLink: telegram_link,
                     whatsappLink: whatsapp_link,
-                    studentCount: student_count,
+                    studentCount: parseInt(student_count),
                     videoCount: video_count,
                     readingCount: reading_count,
                     contentCount: content_count,
@@ -299,7 +299,7 @@ module.exports = {
             const priceInt = parseInt(price);
             return res.status(201).json({
                 error: false,
-                message: "Course Create Succesfully",
+                message: "Kursus Berhasil Dibuat",
                 response: {...addCourse, price: priceInt },
             });
         } catch (error) {
@@ -309,7 +309,150 @@ module.exports = {
                 .json({ error: true, message: "Internal Server Error" });
         }
     },
+    updateCourse: async(req, res) => {
+        const courseId = parseInt(req.params.courseId);
+        const {
+            instructor_name,
+            course_name,
+            course_description,
+            price,
+            rating,
+            telegram_link,
+            whatsapp_link,
+            student_count,
+            video_count,
+            reading_count,
+            content_count,
+            course_type_id,
+            course_category_id,
+            course_level_id,
+        } = req.body;
 
+        try {
+            // Get the logged-in admin ID from the session
+            const jwtAdminId = res.sessionLogin.id;
+
+            // Check if the admin exists
+            const existingUser = await admin.findUniqueOrThrow({
+                where: { id: jwtAdminId },
+            });
+
+            if (!existingUser) {
+                return res
+                    .status(404)
+                    .json({ error: true, message: "Admin Tidak Ditemukan" });
+            }
+
+            // Check if the course exists
+            const existingCourse = await course.findUnique({
+                where: { id: courseId },
+            });
+
+            if (!existingCourse) {
+                return res
+                    .status(404)
+                    .json({ error: true, message: "Kursus Tidak Ditemukan" });
+            }
+
+            // Check if the logged-in admin is the owner of the course
+            if (existingCourse.adminId !== jwtAdminId) {
+                return res.status(403).json({
+                    error: true,
+                    message: "Anda tidak berwenang memperbarui kursus ini.",
+                });
+            }
+
+            // Update the course
+            const updatedCourse = await course.update({
+                where: { id: courseId },
+                data: {
+                    instructorName: instructor_name,
+                    courseName: course_name,
+                    courseDescription: course_description,
+                    price: BigInt(price),
+                    rating: parseInt(rating),
+                    telegramLink: telegram_link,
+                    whatsappLink: whatsapp_link,
+                    studentCount: student_count,
+                    videoCount: video_count,
+                    readingCount: reading_count,
+                    contentCount: content_count,
+                    CourseType: {
+                        connect: { id: parseInt(course_type_id) },
+                    },
+                    CourseLevel: {
+                        connect: { id: parseInt(course_level_id) },
+                    },
+                    CourseCategory: {
+                        connect: { id: parseInt(course_category_id) },
+                    },
+                },
+            });
+
+            const priceInt = parseInt(price);
+            return res.status(200).json({
+                error: false,
+                message: "Kursus Berhasil Diperbarui",
+                response: {...updatedCourse, price: priceInt },
+            });
+        } catch (error) {
+            console.log(error);
+            return res
+                .status(500)
+                .json({ error: true, message: "Internal Server Error" });
+        }
+    },
+    deleteCourse: async(req, res) => {
+        const courseId = parseInt(req.params.courseId);
+
+        try {
+            // Get the logged-in admin ID from the session
+            const jwtAdminId = res.sessionLogin.id;
+
+            // Check if the admin exists
+            const existingUser = await admin.findUniqueOrThrow({
+                where: { id: jwtAdminId },
+            });
+
+            if (!existingUser) {
+                return res
+                    .status(404)
+                    .json({ error: true, message: "Admin Tidak Ditemukan" });
+            }
+
+            // Check if the course exists
+            const existingCourse = await course.findUnique({
+                where: { id: courseId },
+            });
+
+            if (!existingCourse) {
+                return res
+                    .status(404)
+                    .json({ error: true, message: "Kursus Tidak Ditemukan" });
+            }
+
+            // Check if the logged-in admin is the owner of the course
+            if (existingCourse.adminId !== jwtAdminId) {
+                return res.status(403).json({
+                    error: true,
+                    message: "Anda tidak berwenang memperbarui kursus ini.",
+                });
+            }
+
+            // Delete the course
+            await course.delete({ where: { id: courseId } });
+
+            return res.status(200).json({
+                error: false,
+                message: "Kursus Berhasil Dihapus",
+            });
+        } catch (error) {
+            console.log(error);
+            return res
+                .status(500)
+                .json({ error: true, message: "Internal Server Error" });
+        }
+    },
     addCourseContent: async(req, res) => {
         try {
             const courseId = req.params.courseId; // courseId params from admin course.route
@@ -322,7 +465,7 @@ module.exports = {
             if (!checkAdminExist) {
                 return res
                     .status(404)
-                    .json({ error: true, message: "Admin not found" });
+                    .json({ error: true, message: "Adminnya tidak ditemukan" });
             }
 
             if (status == null) {
@@ -340,7 +483,7 @@ module.exports = {
 
             return res.status(201).json({
                 error: false,
-                message: "Course content successfuly created",
+                message: "Konten kursus berhasil dibuat",
                 response: addCourseContent,
             });
         } catch (error) {
@@ -364,7 +507,7 @@ module.exports = {
             if (!checkAdminExist) {
                 return res
                     .status(404)
-                    .json({ error: true, message: "Admin not found" });
+                    .json({ error: true, message: "Admin tidak ditemukan" });
             }
 
             const addCourseSkill = await courseSkill.create({
@@ -376,7 +519,7 @@ module.exports = {
 
             return res.status(201).json({
                 error: false,
-                message: "Course skill successfuly created",
+                message: "Keterampilan kursus berhasil dibuat",
                 response: addCourseSkill,
             });
         } catch (error) {
@@ -400,7 +543,7 @@ module.exports = {
             if (!checkAdminExist) {
                 return res
                     .status(404)
-                    .json({ error: true, message: "Admin not found" });
+                    .json({ error: true, message: "Admin tidak ditemukan" });
             }
 
             const addCourseTarget = await courseTarget.create({
@@ -412,7 +555,7 @@ module.exports = {
 
             return res.status(201).json({
                 error: false,
-                message: "Course target successfuly created",
+                message: "Target kursus berhasil dibuat",
                 response: addCourseTarget,
             });
         } catch (error) {
@@ -436,7 +579,7 @@ module.exports = {
             if (!checkAdminExist) {
                 return res
                     .status(404)
-                    .json({ error: true, message: "Admin not found" });
+                    .json({ error: true, message: "Admin tidak ditemukan" });
             }
 
             const addCourseCoupon = await courseCoupon.create({
@@ -452,7 +595,7 @@ module.exports = {
 
             return res.status(201).json({
                 error: false,
-                message: "Course coupon successfuly created",
+                message: "Kupon kursus berhasil dibuat",
                 response: addCourseCoupon,
             });
         } catch (error) {
@@ -477,7 +620,7 @@ module.exports = {
             if (!cekAkses) {
                 return res.status(403).json({
                     error: true,
-                    message: "You don't have access in this page",
+                    message: "Anda tidak memiliki akses di halaman ini",
                 });
             }
 
@@ -493,6 +636,7 @@ module.exports = {
                     instructorName: true,
                     courseName: true,
                     courseDescription: true,
+                    studentCount: true,
                     imageUrl: true,
                     price: true,
                     rating: true,
@@ -525,7 +669,7 @@ module.exports = {
             // Convert BigInt to string before sending the response
             const responseData = data.map((course) => ({
                 ...course,
-                userCount: course.userCourseContent.length,
+                userCount: course.studentCount,
                 thumbnailCourse: course.imageUrl,
                 price: course.price ? parseFloat(course.price) : null,
                 courseType: course.CourseType.typeName,
@@ -540,12 +684,13 @@ module.exports = {
                 delete course.CourseType;
                 delete course.CourseCategory;
                 delete course.CourseLevel;
+                delete course.studentCount;
                 delete course.imageUrl;
             });
 
             return res.status(200).json({
                 error: false,
-                message: "Load course successful",
+                message: "Memuat kursus berhasil",
                 response: {
                     adminId: jwtAdminId,
                     totalCourse: myCourseCount,
